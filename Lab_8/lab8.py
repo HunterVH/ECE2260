@@ -2,7 +2,18 @@ import numpy as np
 import scipy as sci
 import matplotlib.pyplot as plt
 
-def inverseLaplace(num, den, time):
+'''
+num - The coefficients in the numerator
+den - The coefficients in the denominator
+time - The time value to calculate the final solution
+
+Returns: 
+np.real(answers) - The real portion of the calculated point
+
+This function calculates the inverse laplace of a given equation, at a specified
+time value, by using the numerator's and denominator's coefficients
+'''
+def inverse_laplace(num, den, time):
     def partialInverse(const, root, time, inst=1):
         if inst == 1:
             return const*np.exp(root*time)
@@ -29,12 +40,25 @@ def inverseLaplace(num, den, time):
     
     return np.real(answers)
 
+'''
+numCoeff - The coefficients of the numerator
+denCoeff - The coefficients of the denominator
+analySolution - The function that returns the analytical solution for the inverse laplace equation
+time - A range of values to calculate the inverse laplace equation across
+
+This function plots the analytical solution and the inverse laplace function solution
+of the given equation across a range of times to compare the graphs
+'''
 def compareInverse(numCoeff, denCoeff, analySolution, time):
-    plt.plot(time, inverseLaplace(numCoeff,denCoeff, time), '+', label='inverse')
+    plt.plot(time, inverse_laplace(numCoeff,denCoeff, time), '+', label='inverse')
     plt.plot(time, analySolution(time), label='analytical')
     plt.legend()
     plt.show()
 
+'''
+This function defines the analytical solutions to the inverse laplace equations
+and makes the function calls to produce comparison graphs
+'''
 def main():
     def analyRealDist(t):
         return 120-72*np.exp(-8*t)+48*np.exp(-6*t)
