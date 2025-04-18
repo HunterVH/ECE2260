@@ -9,29 +9,6 @@ def subwoofer(t):
 def tweeter(t):
     return 1-2500*np.exp(-1250*t)*np.cos(np.sqrt(198437500)*t)-(196875000/np.sqrt(198437500))*np.exp(-1250*t)*np.sin(np.sqrt(198437500)*t)
 
-
-def plotBode(denominator, numerator, cutoff=None):
-    sys = signal.TransferFunction(denominator, numerator)
-    w, mag, phase = signal.bode(sys)
-
-    plt.figure()
-    plt.semilogx(w, mag)
-    match cutoff:
-        case 'LP':
-            cutoffPoint = np.argmax(mag < -3)
-            plt.scatter(w[cutoffPoint], mag[cutoffPoint], color='k', label=f'{w[cutoffPoint]:.3f},{mag[cutoffPoint]:.3f}')
-        case 'HP':
-            cutoffPoint = np.argmax(mag > -3)
-            plt.scatter(w[cutoffPoint], mag[cutoffPoint], color='k', label=f'{w[cutoffPoint]:.3f},{mag[cutoffPoint]:.3f}')
-    plt.legend(title='Cutoff Point')
-    plt.grid(True)
-
-    plt.figure()
-    plt.semilogx(w, phase)
-    plt.grid(True)
-
-    # plt.show()
-
 def audio():
     time = np.arange(0, .004, .00001)
     h_lp = subwoofer(time)
@@ -60,14 +37,16 @@ def main():
     R = 7.15
     denomLP = [1/(L*C)]
     numerLP = [1, 1/(R*C), 1/(L*C)]
-    plotBode(denomLP, numerLP, cutoff='LP')
+    sysLP = signal.TransferFunction(denomLP, numerLP)
+    wLP, magLP, phaseLP = signal.bode(sysLP)
 
     L = 1E-3
     C = 5E-6
     R = 8
     denomHP = [1, 0, 0]
     numerHP = [1, 1/(R*C), 1/(L*C)]
-    plotBode(denomHP, numerHP, cutoff='HP')
+    sysHP = signal.TransferFunction(denomHP, numerHP)
+    wHP, magHP, phaseHP = signal.bode(sysHP)
 
     Freq = np.array([100,136.11259631,185.26638875,252.17089183,
                      343.23634802,467.18790478,635.90158686,865.54215987,
@@ -76,18 +55,41 @@ def main():
                      13879.47663039,18891.7159964,25714.00513094,35000])*2*np.pi
     swVo = np.array([.362,.332,.310,.261,.229,.197,.165,.157,.129,.109,.092,.08,
                      .0713,.066,.0625,.061,.0595,.0577,.0578,.057])
+    swPh = np.array([-1.5, -2.8, -5.6, -23.3, -31, -39, -50.2, -3, -4.3, -6.6,
+                     -5.4, -4.7, -5, -3, -4, -4, -4, -6, -8, -6])
     twVo = np.array([.0273,.0362,.0466,.0611,.0780,.0980,.119,.141,.161,.177,
                      .205,.217,.233,.257,.265,.273,.281,.297,.314,.338])
+    twPh = np.array([90.5, 91, 89, 91.7, 92.4, 93.3, 94.1, 94, 94.5, 89, 81.2,
+                     71.9, 60.6, 44.2, 34.3, 26.1, 18.3, 13.1, 10.6, 7.5])
     
-    swVo = 20*np.log10(swVo)
+    swVo = 20*np.log10(swVo/.362)
     twVo = 20*np.log10(twVo)
 
+    
+
     plt.figure()
+    plt.semilogx(wLP, magLP)
+    cutoffPoint = np.argmax(magLP < -3)
+    plt.scatter(wLP[cutoffPoint], magLP[cutoffPoint], color='k', label=f'{wLP[cutoffPoint]:.3f},{magLP[cutoffPoint]:.3f}')
     plt.semilogx(Freq,swVo)
     plt.grid(True)
 
     plt.figure()
+    plt.semilogx(wLP, phaseLP)
+    plt.semilogx(Freq,swPh)
+    plt.grid(True)
+
+
+    plt.figure()
+    plt.semilogx(wHP, magHP)
+    cutoffPoint = np.argmax(magHP > -3)
+    plt.scatter(wHP[cutoffPoint], magHP[cutoffPoint], color='k', label=f'{wHP[cutoffPoint]:.3f},{magHP[cutoffPoint]:.3f}')
     plt.semilogx(Freq,twVo)
+    plt.grid(True)
+
+    plt.figure()
+    plt.semilogx(wHP, phaseHP)
+    plt.semilogx(Freq,twPh)
     plt.grid(True)
 
     plt.show()
