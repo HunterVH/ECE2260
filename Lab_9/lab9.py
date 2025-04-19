@@ -5,9 +5,9 @@ import sounddevice as sd
 import soundfile as sf
 
 def subwoofer(t):
-    return (200000000/np.sqrt(43750000))*np.exp(-12500*t)*np.sin(np.sqrt(43750000)*t)
+    return 4657.780078*np.exp(-1250*t)*np.cos(np.radians(4293.891009*t-90))
 def tweeter(t):
-    return 1-2500*np.exp(-1250*t)*np.cos(np.sqrt(198437500)*t)-(196875000/np.sqrt(198437500))*np.exp(-1250*t)*np.sin(np.sqrt(198437500)*t)
+    return 30237.15784*np.exp(-12500*t)*np.cos(np.radians(6614.378278*t-145.771))
 
 def audio():
     time = np.arange(0, .004, .00001)
@@ -92,10 +92,10 @@ def main():
     plt.semilogx(Freq,twPh)
     plt.grid(True)
 
-    plt.show()
+    # plt.show()
     
 
-    # audio((denomLP, numerLP), (denomHP, numerHP))
+    audio()
 
 if __name__ == "__main__":
     main()
